@@ -51,15 +51,19 @@ public class MainController {
                           @RequestParam("to_convert") String to_convert,
                           Model model) {
         double result = count;
-        if (from_convert.equals("RUB")) {
-            if (to_convert.equals("EUR")) result = count * 0.009356;
-            else if (to_convert.equals("USD")) result = count * 0.010198;
-        } else if (from_convert.equals("USD")) {
-            if (to_convert.equals("RUB")) result = count * 98.06;
-            else if (to_convert.equals("EUR")) result = count * 0.93568;
-        } else if (from_convert.equals("EUR")) {
-            if (to_convert.equals("USD")) result = count * 1.07;
-            else if (to_convert.equals("USD")) result = count * 106.89;
+        switch (from_convert) {
+            case "RUB" -> {
+                if (to_convert.equals("EUR")) result = count * 0.009356;
+                else if (to_convert.equals("USD")) result = count * 0.010198;
+            }
+            case "USD" -> {
+                if (to_convert.equals("RUB")) result = count * 98.06;
+                else if (to_convert.equals("EUR")) result = count * 0.93568;
+            }
+            case "EUR" -> {
+                if (to_convert.equals("USD")) result = count * 1.07;
+                else if (to_convert.equals("USD")) result = count * 106.89;
+            }
         }
         model.addAttribute("result", result);
         return "result";

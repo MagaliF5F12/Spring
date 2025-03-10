@@ -11,7 +11,7 @@
 	<groupId>com.university</groupId>
 	<artifactId>uch_university</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>uch_university</name>
+	<name>magasklad</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
