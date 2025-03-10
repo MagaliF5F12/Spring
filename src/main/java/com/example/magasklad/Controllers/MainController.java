@@ -1,72 +1,72 @@
 package com.example.magasklad.Controllers;
 
+import com.example.magasklad.Models.Pagination;
+import com.example.magasklad.Models.User;
+import com.example.magasklad.Repository.*;
+import com.example.magasklad.Service.*;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
-import java.util.Map;
+import java.util.logging.Logger;
 
 @Controller
 public class MainController {
-    @GetMapping("/")
-    public String home(Model model) {
-        model.addAttribute("name", "MagaliF5");
-        return "homePage";
+    @Autowired
+    UserService userService;
+
+    @GetMapping("/users")
+    public String home(Model model,
+                       @RequestParam(name = "page", required = false, defaultValue = "1") int page,
+                       @RequestParam(name = "firstname", required = false) String firstName,
+                       @RequestParam(name = "surname", required = false) String surname,
+                       @RequestParam(name = "lastname", required = false) String lastname,
+                       @RequestParam(name = "role", required = false) String role) {
+        System.out.println("firstName: " + firstName);
+        Pagination<User> users = userService.getAll(page, firstName, surname, lastname, role);
+        System.out.println("количество пользователей: " + users.getCurrentItems().size());
+        model.addAttribute("pagination_users", users);
+        model.addAttribute("categories", userService.GetAllCategory());
+        return "users";
+
     }
 
-    @PostMapping("calculate")
-    public String calculate(@RequestParam("operand1") double operand1,
-                            @RequestParam("operand2") double operand2,
-                            @RequestParam("operator") String operator,
-                            Model model) {
-        double result = switch (operator) {
-            case "+" -> operand1 + operand2;
-            case "-" -> operand1 - operand2;
-            case "/" -> operand1 / operand2;
-            case "*" -> operand1 * operand2;
-            default -> 0.0;
-        };
-        model.addAttribute("result", result);
-        return "result";
-    }
-
-    @GetMapping("/calculator")
-    public String calculator() {
-        return "calculator";
-    }
-
-    @GetMapping("/currency-converter")
-    public String convertCurrency() {
-        return "converter";
-    }
-
-    @PostMapping("/convert")
-    public String convert(@RequestParam("count") double count,
-                          @RequestParam("from-convert") String from_convert,
-                          @RequestParam("to_convert") String to_convert,
+    @PostMapping("/users")
+    public String addUser(@RequestParam("firstname") String firstname,
+                          @RequestParam("surname") String surname,
+                          @RequestParam("lastname") String lastname,
+                          @RequestParam("role") String role,
                           Model model) {
-        double result = count;
-        switch (from_convert) {
-            case "RUB" -> {
-                if (to_convert.equals("EUR")) result = count * 0.009356;
-                else if (to_convert.equals("USD")) result = count * 0.010198;
-            }
-            case "USD" -> {
-                if (to_convert.equals("RUB")) result = count * 98.06;
-                else if (to_convert.equals("EUR")) result = count * 0.93568;
-            }
-            case "EUR" -> {
-                if (to_convert.equals("USD")) result = count * 1.07;
-                else if (to_convert.equals("USD")) result = count * 106.89;
-            }
-        }
-        model.addAttribute("result", result);
-        return "result";
+        System.out.println(firstname);
+        userService.addUser(new User(firstname, surname, lastname, role));
+        return "redirect:/users";
     }
+
+    @PostMapping("users/update")
+    public String updateStudent(@RequestParam("id") int id,
+                                @RequestParam("firstname") String firstname,
+                                @RequestParam("surname") String surname,
+                                @RequestParam("lastname") String lastname,
+                                @RequestParam("role") String role) {
+        User user = new User(id, firstname, surname, lastname, role);
+        userService.editUser(user);
+        return "redirect:/users";
+    }
+
+    @PostMapping("users/delete")
+    public String deleteUsers(@RequestBody List<Integer> ids) {
+        for (Integer id : ids) {
+            userService.deleteUser(id);
+        }
+        return "redirect:/users";
+    }
+
 }
 

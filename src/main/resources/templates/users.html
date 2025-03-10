@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+        }
+        header, .content {
+            margin: 20px;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+        }
+        a, button {
+            color: #ffffff;
+            background-color: #3b3b3b;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        input, select, p {
+            margin: 5px 0;
+            padding: 8px;
+            border: 1px solid #555;
+            background-color: #2b2b2b;
+            color: #e0e0e0;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #555;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #3b3b3b;
+        }
+        tr:hover {
+            background-color: #2e2e2e;
+            cursor: pointer;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .form-inline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-inline input {
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <a href="/">Назад</a>
+    <form method="GET" id="search">
+        <input placeholder="Поиск по имени" name="firstname"/>
+        <button>Поиск</button>
+    </form>
+</header>
+<div class="body">
+    <div class="content">
+        <header>
+            <h2>Peoples</h2>
+            <input type="checkbox" id="selectAll"/> Выбрать всех
+            <button id="delete">Удалить</button>
+        </header>
+        <table>
+            <thead>
+            <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Отчество</th>
+                <th>Роль</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="user: ${pagination_users.getCurrentItems()}">
+                <tr th:data-id="${user.getId()}" th:data-firstname="${user.getFirstName()}"
+                    th:data-surname="${user.getSurname()}" th:data-lastname="${user.getLastName()}"
+                    th:data-role="${user.getRole()}">
+                    <td><input type="checkbox" class="selectRow"/></td>
+                    <td th:text="${user.getId()}"></td>
+                    <td th:text="${user.getFirstName()}"></td>
+                    <td th:text="${user.getSurname()}"></td>
+                    <td th:text="${user.getLastName()}"></td>
+                    <td th:text="${user.getRole()}"></td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+        <div class="pagination">
+            <th:block th:if="${pagination_users.getCurrentPage() > 1}">
+                <a th:href="@{/users?(page=${pagination_users.getCurrentPage() - 1})}"><</a>
+            </th:block>
+            <p th:text="|${pagination_users.getCurrentPage()}|"></p>
+            <th:block th:if="${pagination_users.getCurrentPage() < pagination_users.getTotalNumberPages()}">
+                <a th:href="@{/users?(page=${pagination_users.getCurrentPage() + 1})}">></a>
+            </th:block>
+        </div>
+    </div>
+
+    <div class="content">
+        <header>
+            <h2>Создание пользователя</h2>
+        </header>
+        <form class="createUser form-inline" method="POST" action="/users" id="userForm">
+            <input placeholder="Имя" type="text" maxlength="50" required name="firstname" id="firstname">
+            <input placeholder="Фамилия" type="text" maxlength="50" required name="surname" id="surname">
+            <input placeholder="Отчество" type="text" maxlength="50" required name="lastname" id="lastname">
+            <input placeholder="Роль" type="text" maxlength="50" required name="role" id="role">
+            <button type="submit">Сохранить</button>
+        </form>
+    </div>
+
+    <div class="content">
+        <header>
+            <h2>Обновление пользователя</h2>
+        </header>
+        <form class="updateUser form-inline" method="POST" action="/users/update" id="updateUserForm">
+            <input type="hidden" name="id" id="updateUserId"/>
+            <input placeholder="Имя" type="text" maxlength="50" required name="firstname" id="updateFirstname">
+            <input placeholder="Фамилия" type="text" maxlength="50" required name="surname" id="updateSurname">
+            <input placeholder="Отчество" type="text" maxlength="50" required name="lastname" id="updateLastname">
+            <input placeholder="Роль" type="text" maxlength="50" required name="role" id="updateRole">
+            <button type="submit">Обновить</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.querySelector('#selectAll').addEventListener('change', function() {
+        document.querySelectorAll('.selectRow').forEach(checkbox => checkbox.checked = this.checked);
+    });
+
+    document.querySelectorAll('tbody tr').forEach(row => {
+        row.addEventListener('click', function() {
+            // Для обновления
+            document.getElementById('updateUserId').value = this.getAttribute('data-id');
+            document.getElementById('updateFirstname').value = this.getAttribute('data-firstname');
+            document.getElementById('updateSurname').value = this.getAttribute('data-surname');
+            document.getElementById('updateLastname').value = this.getAttribute('data-lastname');
+            document.getElementById('updateRole').value = this.getAttribute('data-role');
+        });
+    });
+    document.getElementById('delete').addEventListener('click', function() {
+    const selectedIds = Array.from(document.querySelectorAll('.selectRow:checked'))
+        .map(checkbox => checkbox.closest('tr').getAttribute('data-id'));
+
+    if (selectedIds.length === 0) {
+        alert('Выберите хотя бы одного пользователя для удаления.');
+        return;
+    }
+
+    fetch('/users/delete', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(selectedIds)
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.reload();
+        }  else {
+            return response.json().then(error => {
+                alert(`Ошибка: ${error.message || 'Не удалось удалить пользователей'}`);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при удалении пользователей.');
+    });
+});
+</script>
+
+</body>
+</html>
