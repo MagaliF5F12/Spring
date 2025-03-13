@@ -93,41 +93,40 @@
             </tr>
             </thead>
             <tbody>
-            <th:block th:each="user: ${pagination_users.getCurrentItems()}">
+            <th:block th:each="user: ${pagination_users}">
                 <tr th:data-id="${user.getId()}" th:data-firstname="${user.getFirstName()}"
-                    th:data-surname="${user.getSurname()}" th:data-lastname="${user.getLastName()}"
+                    th:data-surname="${user.getSurName()}" th:data-lastname="${user.getLastName()}"
                     th:data-role="${user.getRole()}">
                     <td><input type="checkbox" class="selectRow"/></td>
                     <td th:text="${user.getId()}"></td>
                     <td th:text="${user.getFirstName()}"></td>
-                    <td th:text="${user.getSurname()}"></td>
+                    <td th:text="${user.getSurName()}"></td>
                     <td th:text="${user.getLastName()}"></td>
                     <td th:text="${user.getRole()}"></td>
                 </tr>
             </th:block>
             </tbody>
         </table>
-        <div class="pagination">
-            <th:block th:if="${pagination_users.getCurrentPage() > 1}">
-                <a th:href="@{/users?(page=${pagination_users.getCurrentPage() - 1})}"><</a>
-            </th:block>
-            <p th:text="|${pagination_users.getCurrentPage()}|"></p>
-            <th:block th:if="${pagination_users.getCurrentPage() < pagination_users.getTotalNumberPages()}">
-                <a th:href="@{/users?(page=${pagination_users.getCurrentPage() + 1})}">></a>
-            </th:block>
-        </div>
+        <!--        <div class="pagination">-->
+        <!--            <th:block th:if="${pagination_users.getCurrentPage() > 1}">-->
+        <!--                <a th:href="@{/users?(page=${pagination_users.getCurrentPage() - 1})}"><</a>-->
+        <!--            </th:block>-->
+        <!--            <p th:text="|${pagination_users.getCurrentPage()}|"></p>-->
+        <!--            <th:block th:if="${pagination_users.getCurrentPage() < pagination_users.getTotalNumberPages()}">-->
+        <!--                <a th:href="@{/users?(page=${pagination_users.getCurrentPage() + 1})}">></a>-->
+        <!--            </th:block>-->
+        <!--        </div>-->
     </div>
-
     <div class="content">
         <header>
             <h2>Создание пользователя</h2>
         </header>
-        <form class="createUser form-inline" method="POST" action="/users" id="userForm">
-            <input placeholder="Имя" type="text" maxlength="50" required name="firstname" id="firstname">
-            <input placeholder="Фамилия" type="text" maxlength="50" required name="surname" id="surname">
-            <input placeholder="Отчество" type="text" maxlength="50" required name="lastname" id="lastname">
-            <input placeholder="Роль" type="text" maxlength="50" required name="role" id="role">
-            <button type="submit">Сохранить</button>
+        <form class="createUser form-inline" method="POST" action="/users/add" id="userForm" th:object="${user}">
+            <input placeholder="Имя" id="firstname" th:field="*{firstName}" required>
+            <input placeholder="Фамилия" id="surname" th:field="*{surName}" required>
+            <input placeholder="Отчество" required th:field="*{lastName}">
+            <input placeholder="Роль" id="role" th:field="*{role}" required>
+            <button type="submit" formmethod="post">Создать</button>
         </form>
     </div>
 
@@ -135,13 +134,14 @@
         <header>
             <h2>Обновление пользователя</h2>
         </header>
-        <form class="updateUser form-inline" method="POST" action="/users/update" id="updateUserForm">
-            <input type="hidden" name="id" id="updateUserId"/>
-            <input placeholder="Имя" type="text" maxlength="50" required name="firstname" id="updateFirstname">
-            <input placeholder="Фамилия" type="text" maxlength="50" required name="surname" id="updateSurname">
-            <input placeholder="Отчество" type="text" maxlength="50" required name="lastname" id="updateLastname">
-            <input placeholder="Роль" type="text" maxlength="50" required name="role" id="updateRole">
-            <button type="submit">Обновить</button>
+        <form class="updateUser form-inline" method="POST" action="/users/update" id="updateUserForm"
+              th:object="${user}">
+            <input type="hidden" name="id" id="updateUserId" th:field="*{id}"/>
+            <input placeholder="Имя" th:field="*{firstName}" required id="updateFirstname">
+            <input placeholder="Фамилия" th:field="*{surName}" required id="updateSurname">
+            <input placeholder="Отчество" id="updateLastname" required th:field="*{lastName}">
+            <input placeholder="Роль" id="updateRole" th:field="*{role}" required>
+            <button type="submit" formmethod="post">Обновить</button>
         </form>
     </div>
 </div>
@@ -162,35 +162,35 @@
         });
     });
     document.getElementById('delete').addEventListener('click', function() {
-    const selectedIds = Array.from(document.querySelectorAll('.selectRow:checked'))
-        .map(checkbox => checkbox.closest('tr').getAttribute('data-id'));
+        const selectedIds = Array.from(document.querySelectorAll('.selectRow:checked'))
+            .map(checkbox => checkbox.closest('tr').getAttribute('data-id'));
 
-    if (selectedIds.length === 0) {
-        alert('Выберите хотя бы одного пользователя для удаления.');
-        return;
-    }
-
-    fetch('/users/delete', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(selectedIds)
-    })
-    .then(response => {
-        if (response.ok) {
-            window.location.reload();
-        }  else {
-            return response.json().then(error => {
-                alert(`Ошибка: ${error.message || 'Не удалось удалить пользователей'}`);
-            });
+        if (selectedIds.length === 0) {
+            alert('Выберите хотя бы одного пользователя для удаления.');
+            return;
         }
-    })
-    .catch(error => {
-        console.error('Ошибка:', error);
-        alert('Произошла ошибка при удалении пользователей.');
+
+        fetch('/users/delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(selectedIds)
+        })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                }  else {
+                    return response.json().then(error => {
+                        alert(`Ошибка: ${error.message || 'Не удалось удалить пользователей'}`);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при удалении пользователей.');
+            });
     });
-});
 </script>
 
 </body>

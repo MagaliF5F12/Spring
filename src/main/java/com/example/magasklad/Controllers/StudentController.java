@@ -2,59 +2,75 @@ package com.example.magasklad.Controllers;
 
 import com.example.magasklad.Models.Pagination;
 import com.example.magasklad.Models.Student;
-import com.example.magasklad.Models.User;
+import com.example.magasklad.Models.Users;
 import com.example.magasklad.Service.StudentService;
 import com.example.magasklad.Service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@RequestMapping("/students")
 public class StudentController {
     @Autowired
-    StudentService userService;
+    public StudentService studentService;
 
-    @GetMapping("/students")
-    public String home(Model model,
-                       @RequestParam(name = "page", required = false, defaultValue = "1") int page) {
-        Pagination<Student> users = userService.getAll(page);
-        System.out.println("количество пользователей: " + users.getCurrentItems().size());
-        model.addAttribute("pagination_users", users);
-        model.addAttribute("categories", userService.GetAllCategory());
+
+    @GetMapping("/all")
+    public String getAllUsers(Model model,
+                              @RequestParam(name = "page", required = false, defaultValue = "1") int page,
+                              @RequestParam(name = "FIO", required = false) String FIO,
+                              @RequestParam(name = "group", required = false) String group,
+                              @RequestParam(name = "course", required = false) String course) {
+        List<Student> students = studentService.findAll();
+        System.out.println("количество студентов: " + students.size());
+        model.addAttribute("pagination_students", students);
+        model.addAttribute("student", new Student());
+
         return "students";
 
     }
 
-    @PostMapping("/students")
-    public String addUser(@RequestParam("FIO") String FIO,
-                          @RequestParam("group") String group,
-                          @RequestParam("course") int course,
-                          Model model) {
-        userService.addUser(new Student(FIO, group, course));
-        return "redirect:/students";
-    }
-
-    @PostMapping("students/update")
-    public String updateStudent(@RequestParam("id") int id,
-                                @RequestParam("FIO") String FIO,
-                                @RequestParam("group") String group,
-                                @RequestParam("course") int course) {
-        Student user = new Student(id, FIO, group, course);
-        userService.editUser(user);
-        return "redirect:/students";
-    }
-
-    @PostMapping("students/delete")
-    public String deleteUsers(@RequestBody List<Integer> ids) {
-        for (Integer id : ids) {
-            userService.deleteUser(id);
+    @PostMapping("/add")
+    public String addUser(@Valid @ModelAttribute("student") Student student, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            List<Student> students = studentService.findAll();
+            System.out.println("количество студентов: " + students.size());
+            model.addAttribute("pagination_users", students);
+            model.addAttribute("student", new Student());
         }
-        return "redirect:/students";
+        studentService.add(student);
+        return "redirect:/students/all";
+
+
     }
+
+    @PostMapping("/update")
+    public String updateUser(@Valid @ModelAttribute("student") Student student, BindingResult result) {
+        studentService.edit(student.getId(), student);
+        return "redirect:/students/all";
+
+    }
+
+    @PostMapping("/delete")
+    public String deleteUser(@RequestBody ArrayList<Long> ids) {
+        for(Long id : ids) {
+            studentService.delete(id);
+        }
+        return "redirect:/students/all";
+
+    }
+    @GetMapping("/all/{id}")
+    public String getIdStudent(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("students", studentService.findById(id));
+        model.addAttribute("student", new Student());
+        return "students";
+    }
+
 }
