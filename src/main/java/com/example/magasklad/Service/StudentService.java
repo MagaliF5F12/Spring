@@ -9,12 +9,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class StudentService extends BaseService<Student, Long>{
+public class StudentService extends BaseService<Student, UUID>{
     @Autowired
-    public StudentService(JpaRepository<Student, Long> repository) {
+    public StudentService(JpaRepository<Student, UUID> repository) {
         super(repository);
     }
 }

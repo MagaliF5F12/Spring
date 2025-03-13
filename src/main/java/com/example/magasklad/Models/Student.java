@@ -7,12 +7,14 @@ import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.UUID;
+
 @Entity
 @Table(name="student")
 public class Student {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    @GeneratedValue
+    UUID id;
     @NotEmpty
     @Size(min = 2, max = 50, message = "Длина должна быть от 2 до 10 символов")
     String FIO;
@@ -27,7 +29,7 @@ public class Student {
 
     public Student() {}
 
-    public Student(Long id, String FIO, String group, int course) {
+    public Student(UUID id, String FIO, String group, int course) {
         this.id = id;
         this.FIO = FIO;
         this.student_group = group;
@@ -40,11 +42,11 @@ public class Student {
         this.course = course;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

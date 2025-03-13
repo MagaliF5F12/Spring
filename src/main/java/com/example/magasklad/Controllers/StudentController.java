@@ -1,10 +1,8 @@
 package com.example.magasklad.Controllers;
 
-import com.example.magasklad.Models.Pagination;
+
 import com.example.magasklad.Models.Student;
-import com.example.magasklad.Models.Users;
 import com.example.magasklad.Service.StudentService;
-import com.example.magasklad.Service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/students")
@@ -59,15 +58,15 @@ public class StudentController {
     }
 
     @PostMapping("/delete")
-    public String deleteUser(@RequestBody ArrayList<Long> ids) {
-        for(Long id : ids) {
+    public String deleteUser(@RequestBody ArrayList<UUID> ids) {
+        for(UUID id : ids) {
             studentService.delete(id);
         }
         return "redirect:/students/all";
 
     }
     @GetMapping("/all/{id}")
-    public String getIdStudent(@PathVariable("id") Long id, Model model) {
+    public String getIdStudent(@PathVariable("id") UUID id, Model model) {
         model.addAttribute("students", studentService.findById(id));
         model.addAttribute("student", new Student());
         return "students";

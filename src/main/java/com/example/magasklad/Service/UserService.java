@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService extends BaseService<Users, Long>{
+public class UserService extends BaseService<Users, UUID> {
     @Autowired
-    public UserService(JpaRepository<Users, Long> repository) {
+    public UserService(JpaRepository<Users, UUID> repository) {
         super(repository);
     }
-
 }

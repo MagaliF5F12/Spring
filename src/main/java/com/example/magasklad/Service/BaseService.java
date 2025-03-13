@@ -2,6 +2,7 @@ package com.example.magasklad.Service;
 
 
 import com.example.magasklad.Models.Pagination;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -14,16 +15,13 @@ import java.util.stream.Collectors;
 public abstract class BaseService<T, ID> {
 
     private final JpaRepository<T, ID> repository;
-
     public BaseService(JpaRepository<T, ID> repository) {
         this.repository = repository;
     }
 
-    public Pagination<T> getAll(int page) {
-        ArrayList<T> users = new ArrayList<>(repository.findAll());
-        return new Pagination<T>(users, page);
+    public Pagination<T> findAll(int page) {
+        return new Pagination<T>(new ArrayList<>(repository.findAll()), page);
     }
-
     public List<T> findAll() {
         return repository.findAll(Sort.by("id"));
     }

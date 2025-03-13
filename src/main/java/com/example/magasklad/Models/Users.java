@@ -1,55 +1,54 @@
 package com.example.magasklad.Models;
 
 import jakarta.annotation.Nullable;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.beans.factory.annotation.Value;
+
+import java.util.List;
+import java.util.UUID;
 
 
 @Entity
+@Table(name = "users")
 public class Users {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    @GeneratedValue
+    UUID id;
     @NotNull
     String firstName;
     @NotNull
     String surName;
     @Nullable
     String lastName;
-    @NotEmpty
-    @Size(min = 2, max = 10, message = "Длина должна быть от 2 до 10 символов")
-    String role;
-    @Value("${some.value}")
-    boolean isDeleted = false;
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    Roles roles;
+    @NotNull
+    @OneToOne
+    @JoinColumn(name = "profile_id")
+    Profile profile;
+    @ManyToMany
+    @JoinTable(name = "user_order",joinColumns = @JoinColumn(name = "users_id"), inverseJoinColumns = @JoinColumn(name = "orders_id"))
+    List<Orders> orders;
 
     public Users(){}
 
-    public Users(Long id, @NotNull String firstName, @NotNull String surName,@Nullable String lastName, String role) {
+    public Users(UUID id, String firstName, String surName, @Nullable String lastName, Roles roles, Profile profile, List<Orders> orders) {
         this.id = id;
         this.firstName = firstName;
         this.surName = surName;
         this.lastName = lastName;
-        this.role = role;
+        this.roles = roles;
+        this.profile = profile;
+        this.orders = orders;
     }
 
-    public Users(@NotNull String firstName, @NotNull String surName,@Nullable String lastName, String role) {
-        this.firstName = firstName;
-        this.surName = surName;
-        this.lastName = lastName;
-        this.role = role;
-    }
-
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -69,7 +68,8 @@ public class Users {
         this.surName = surName;
     }
 
-    public @Nullable String getLastName() {
+    @Nullable
+    public String getLastName() {
         return lastName;
     }
 
@@ -77,20 +77,27 @@ public class Users {
         this.lastName = lastName;
     }
 
-    public @NotEmpty String getRole() {
-        return role;
+    public @NotNull Roles getRoles() {
+        return roles;
     }
 
-    public void setRole(@NotEmpty String role) {
-        this.role = role;
+    public void setRoles(@NotNull Roles roles) {
+        this.roles = roles;
     }
 
-    public boolean isDeleted() {
-        return isDeleted;
+    public @NotNull Profile getProfile() {
+        return profile;
     }
 
-    public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
+    public void setProfile(@NotNull Profile profile) {
+        this.profile = profile;
+    }
+
+    public List<Orders> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Orders> orders) {
+        this.orders = orders;
     }
 }
-

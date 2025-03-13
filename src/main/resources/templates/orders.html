@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Students</title>
+    <title>Users</title>
     <style>
         body {
             background-color: #121212;
@@ -77,7 +77,7 @@
 <div class="body">
     <div class="content">
         <header>
-            <h2>Peoples</h2>
+            <h2>Список заказов</h2>
             <input type="checkbox" id="selectAll"/> Выбрать всех
             <button id="delete">Удалить</button>
         </header>
@@ -86,20 +86,18 @@
             <tr>
                 <th></th>
                 <th>ID</th>
-                <th>ФИО</th>
-                <th>Группа</th>
-                <th>Курс</th>
+                <th>Название заказа</th>
+                <th>Цена</th>
             </tr>
             </thead>
             <tbody>
-            <th:block th:each="student: ${pagination_students}">
-                <tr th:data-id="${student.getId()}" th:data-FIO="${student.getFIO()}"
-                    th:data-group="${student.getGroup()}" th:data-course="${student.getCourse()}">
+            <th:block th:each="order: ${ordersList}">
+                <tr th:data-id="${order.getId()}" th:data-firstname="${order.getTitle()}"
+                    th:data-surname="${order.getPrice()}">
                     <td><input type="checkbox" class="selectRow"/></td>
-                    <td th:text="${student.getId()}"></td>
-                    <td th:text="${student.getFIO()}"></td>
-                    <td th:text="${student.getGroup()}"></td>
-                    <td th:text="${student.getCourse()}"></td>
+                    <td th:text="${order.getId()}"></td>
+                    <td th:text="${order.getTitle()}"></td>
+                    <td th:text="${order.getPrice()}"></td>
                 </tr>
             </th:block>
             </tbody>
@@ -116,32 +114,39 @@
     </div>
     <div class="content">
         <header>
-            <h2>Создание Студента</h2>
+            <h2>Список заказов</h2>
         </header>
-        <form class="createUser form-inline" method="POST" action="/students/add" id="userForm" th:object="${student}">
-            <input placeholder="ФИО" id="firstname" th:field="*{FIO}" required>
-            <input placeholder="Группа" id="surname" th:field="*{group}" required>
-            <input placeholder="Курс" type="number" required th:field="*{course}">
+        <form class="createUser form-inline" method="POST" action="/orders/add" id="userForm" th:object="${order}">
+            <input placeholder="Название заказа" id="firstname" th:field="*{title}" required>
+            <input placeholder="Цена" id="surname" type="number" th:field="*{price}" required>
             <button type="submit" formmethod="post">Создать</button>
         </form>
     </div>
 
     <div class="content">
         <header>
-            <h2>Обновление данных студента</h2>
+            <h2>Обновление заказа</h2>
         </header>
-        <form class="updateUser form-inline" method="POST" action="/students/update" id="updateUserForm"
-              th:object="${student}">
+        <form class="updateUser form-inline" method="POST" action="/orders/update" id="updateUserForm"
+              th:object="${order}">
             <input type="hidden" name="id" id="updateUserId" th:field="*{id}"/>
-            <input placeholder="ФИО" th:field="*{FIO}" required id="updateFirstname">
-            <input placeholder="Группа" th:field="*{group}" required id="updateSurname">
-            <input placeholder="Курс" type="number" id="updateLastname" required th:field="*{course}">
+            <input placeholder="Название заказа" th:field="*{title}" required id="updateFirstname">
+            <input placeholder="Цена" th:field="*{price}" required id="updateSurname">
             <button type="submit" formmethod="post">Обновить</button>
         </form>
     </div>
 </div>
 
 <script>
+    function selectElement(id, data) {
+        let select = document.getElementById(id);
+        for(var a = 0; a < select.length; a++){
+            if(select.options[a].text == data){
+                select.value = select.options[a].value;
+            }
+        }
+
+    }
     document.querySelector('#selectAll').addEventListener('change', function() {
         document.querySelectorAll('.selectRow').forEach(checkbox => checkbox.checked = this.checked);
     });
@@ -150,9 +155,8 @@
         row.addEventListener('click', function() {
             // Для обновления
             document.getElementById('updateUserId').value = this.getAttribute('data-id');
-            document.getElementById('updateFirstname').value = this.getAttribute('data-FIO');
-            document.getElementById('updateSurname').value = this.getAttribute('data-group');
-            document.getElementById('updateLastname').value = this.getAttribute('data-course');
+            document.getElementById('updateFirstname').value = this.getAttribute('data-firstname');
+            document.getElementById('updateSurname').value = this.getAttribute('data-surname');
         });
     });
     document.getElementById('delete').addEventListener('click', function() {
@@ -164,7 +168,7 @@
         return;
     }
 
-    fetch('/students/delete', {
+    fetch('/orders/delete', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -184,7 +188,7 @@
         console.error('Ошибка:', error);
         alert('Произошла ошибка при удалении пользователей.');
     });
-  });
+});
 </script>
 
 </body>

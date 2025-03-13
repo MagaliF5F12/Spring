@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:c="http://www.w3.org/1999/XSL/Transform">
 <head>
     <meta charset="UTF-8">
     <title>Users</title>
@@ -68,7 +68,7 @@
 </head>
 <body>
 <header>
-    <a href="/">Назад</a>
+    <a href="/users/all">Назад</a>
     <form method="GET" id="search">
         <input placeholder="Поиск по имени" name="firstname"/>
         <button>Поиск</button>
@@ -77,7 +77,7 @@
 <div class="body">
     <div class="content">
         <header>
-            <h2>Peoples</h2>
+            <h2>Список пользователей</h2>
             <input type="checkbox" id="selectAll"/> Выбрать всех
             <button id="delete">Удалить</button>
         </header>
@@ -90,19 +90,22 @@
                 <th>Фамилия</th>
                 <th>Отчество</th>
                 <th>Роль</th>
+                <th>Используемый логин</th>
             </tr>
             </thead>
             <tbody>
             <th:block th:each="user: ${pagination_users}">
-                <tr th:data-id="${user.getId()}" th:data-firstname="${user.getFirstName()}"
+                <tr th:data-id="${user.id}" th:data-firstname="${user.getFirstName()}"
                     th:data-surname="${user.getSurName()}" th:data-lastname="${user.getLastName()}"
-                    th:data-role="${user.getRole()}">
+                    th:data-role="${user.getRoles().getTitle()}" th:data-profile="${user.getProfile().getLogin()}"
+                    th:data-order-list="${doing}">
                     <td><input type="checkbox" class="selectRow"/></td>
                     <td th:text="${user.getId()}"></td>
                     <td th:text="${user.getFirstName()}"></td>
                     <td th:text="${user.getSurName()}"></td>
                     <td th:text="${user.getLastName()}"></td>
-                    <td th:text="${user.getRole()}"></td>
+                    <td th:text="${user.getRoles().getTitle()}"></td>
+                    <td th:text="${user.getProfile().getLogin()}"></td>
                 </tr>
             </th:block>
             </tbody>
@@ -125,7 +128,16 @@
             <input placeholder="Имя" id="firstname" th:field="*{firstName}" required>
             <input placeholder="Фамилия" id="surname" th:field="*{surName}" required>
             <input placeholder="Отчество" required th:field="*{lastName}">
-            <input placeholder="Роль" id="role" th:field="*{role}" required>
+            <label for="category">Роль</label>
+            <select class="form-control" id="category" name="roles.id" required>
+                <option th:each="role : ${roles}" th:value="${role.getId()}"
+                        th:text="${role.getTitle()}"></option>
+            </select>
+            <label for="profile">Логин</label>
+            <select class="form-control" id="profile" name="profile.id" required>
+                <option th:each="profile : ${profiles}" th:value="${profile.getId()}"
+                        th:text="${profile.getLogin()}"></option>
+            </select>
             <button type="submit" formmethod="post">Создать</button>
         </form>
     </div>
@@ -136,31 +148,119 @@
         </header>
         <form class="updateUser form-inline" method="POST" action="/users/update" id="updateUserForm"
               th:object="${user}">
-            <input type="hidden" name="id" id="updateUserId" th:field="*{id}"/>
-            <input placeholder="Имя" th:field="*{firstName}" required id="updateFirstname">
-            <input placeholder="Фамилия" th:field="*{surName}" required id="updateSurname">
-            <input placeholder="Отчество" id="updateLastname" required th:field="*{lastName}">
-            <input placeholder="Роль" id="updateRole" th:field="*{role}" required>
+            <input type="hidden" name="id" id="updateUserId" th:field="*{id}">
+            <input placeholder="Имя" id="updateFirstname" th:field="*{firstName}" required>
+            <input placeholder="Фамилия" id="updateSurname" th:field="*{surName}" required>
+            <input placeholder="Отчество" required th:field="*{lastName}" id="updateLastname">
+            <label for="updateRole">Роль</label>
+            <select class="form-control" id="updateRole" name="roles.id" required>
+                <option th:each="role : ${roles}" th:value="${role.getId()}"
+                        th:text="${role.getTitle()}"></option>
+            </select>
+            <label for="updateProfile">Логин</label>
+            <select class="form-control" id="updateProfile" name="profile.id" required>
+                <option th:each="profile : ${profiles}" th:value="${profile.getId()}"
+                        th:text="${profile.getLogin()}"></option>
+            </select>
             <button type="submit" formmethod="post">Обновить</button>
         </form>
+
     </div>
+    <div class="content" th:if="${user_orders_list != null}">
+        <header>
+            <h2 th:text="@{'Список заказа пользователя ' + ${user_name}}"></h2>
+            <input type="checkbox" id="selectAllOrders"/> Выбрать всех
+            <button id="deleteOrder">Удалить</button>
+        </header>
+        <table>
+            <thead>
+            <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Название заказа</th>
+                <th>Цена заказа</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${user_orders_list}" th:data-id="${order.getId()}"
+                th:data-title="${order.getTitle()}"
+                th:data-price="${order.getPrice()}">
+                <td><input type="checkbox" class="selectRow"/></td>
+                <td th:text="${order.getId()}"></td>
+                <td th:text="${order.getTitle()}"></td>
+                <td th:text="${order.getPrice()}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <header>
+            <h2>Добавление заказа пользователю</h2>
+        </header>
+        <form class="createUser form-inline" method="POST" id="orderForm"
+              th:action="@{'/users/all/' + ${user_id} + '/add_order'}">
+            <label for="category">Заказ</label>
+            <select class="form-control" id="order_id" name="order_id" required>
+                <option th:each="order : ${ordersList}" th:value="${order.getId()}"
+                        th:text="${order.getTitle()}"></option>
+            </select>
+            <label for="profile">Роль</label>
+            <select class="form-control" id="user_id" name="user_id" required style="pointer-events: none">
+                <option th:each="users : ${pagination_users}" th:value="${users.getId()}"
+                        th:text="${users.getFirstName()}"></option>
+            </select>
+            <button type="submit" formmethod="post">Создать</button>
+        </form>
+    </div>
+
 </div>
 
 <script>
+    function selectElement(id, data) {
+        let select = document.getElementById(id);
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].text === data) {
+                select.value = select.options[i].value;
+                break; // Найдено, прерываем цикл
+            }
+        }
+    }
+
+    // Выбор всех строк
     document.querySelector('#selectAll').addEventListener('change', function() {
         document.querySelectorAll('.selectRow').forEach(checkbox => checkbox.checked = this.checked);
     });
 
+    // Клик по строке таблицы
     document.querySelectorAll('tbody tr').forEach(row => {
-        row.addEventListener('click', function() {
-            // Для обновления
-            document.getElementById('updateUserId').value = this.getAttribute('data-id');
-            document.getElementById('updateFirstname').value = this.getAttribute('data-firstname');
-            document.getElementById('updateSurname').value = this.getAttribute('data-surname');
-            document.getElementById('updateLastname').value = this.getAttribute('data-lastname');
-            document.getElementById('updateRole').value = this.getAttribute('data-role');
+        row.addEventListener('click', function(event) {
+            console.log(this)
+            console.log(this.getAttribute('data-order-list'));
+            // Проверка, чтобы избежать перенаправления при нажатии на чекбокс
+            if (event.target.classList.contains('selectRow')) {
+                return;
+            }
+            const userId = this.getAttribute('data-id');
+            console.log(userId)
+            if (this.getAttribute('data-order-list') == 'false') {
+                const url = `/users/all/${userId}`;
+
+                // Перенаправление на страницу пользователя
+                window.location.href = url;
+
+            } else {
+                // Заполнение полей формы для обновления
+                document.getElementById('updateUserId').value = this.getAttribute('data-id');
+                document.getElementById('updateFirstname').value = this.getAttribute('data-firstname');
+                document.getElementById('updateSurname').value = this.getAttribute('data-surname');
+                document.getElementById('updateLastname').value = this.getAttribute('data-lastname');
+
+                selectElement('updateRole', this.getAttribute('data-role'));
+                selectElement('updateProfile', this.getAttribute('data-profile'));
+                selectElement('user_id', this.getAttribute('data-firstname'));
+            }
         });
     });
+
+    // Удаление пользователей
     document.getElementById('delete').addEventListener('click', function() {
         const selectedIds = Array.from(document.querySelectorAll('.selectRow:checked'))
             .map(checkbox => checkbox.closest('tr').getAttribute('data-id'));
@@ -173,24 +273,25 @@
         fetch('/users/delete', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(selectedIds)
         })
             .then(response => {
-                if (response.ok) {
-                    window.location.reload();
-                }  else {
+                if (!response.ok) {
                     return response.json().then(error => {
-                        alert(`Ошибка: ${error.message || 'Не удалось удалить пользователей'}`);
+                        throw new Error(error.message || 'Не удалось удалить пользователей');
                     });
                 }
+                alert('Пользователи успешно удалены!');
+                window.location.reload();
             })
             .catch(error => {
                 console.error('Ошибка:', error);
-                alert('Произошла ошибка при удалении пользователей.');
+                alert(`Ошибка: ${error.message || 'Произошла ошибка при удалении пользователей.'}`);
             });
     });
+
 </script>
 
 </body>
