@@ -17,5 +17,8 @@ spring:
         format_sql:
 server:
   port: 5252
+  servlet:
+    session:
+      timeout=15s:
 some:
   value: false

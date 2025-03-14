@@ -97,7 +97,7 @@
             <th:block th:each="user: ${pagination_users}">
                 <tr th:data-id="${user.id}" th:data-firstname="${user.getFirstName()}"
                     th:data-surname="${user.getSurName()}" th:data-lastname="${user.getLastName()}"
-                    th:data-role="${user.getRoles().getTitle()}" th:data-profile="${user.getProfile().getLogin()}"
+                    th:data-role="${user.getRoles().getTitle()}" th:data-profile="${user.getProfile().getUsername()}"
                     th:data-order-list="${doing}">
                     <td><input type="checkbox" class="selectRow"/></td>
                     <td th:text="${user.getId()}"></td>
@@ -105,7 +105,7 @@
                     <td th:text="${user.getSurName()}"></td>
                     <td th:text="${user.getLastName()}"></td>
                     <td th:text="${user.getRoles().getTitle()}"></td>
-                    <td th:text="${user.getProfile().getLogin()}"></td>
+                    <td th:text="${user.getProfile().getUsername()}"></td>
                 </tr>
             </th:block>
             </tbody>
@@ -136,7 +136,7 @@
             <label for="profile">Логин</label>
             <select class="form-control" id="profile" name="profile.id" required>
                 <option th:each="profile : ${profiles}" th:value="${profile.getId()}"
-                        th:text="${profile.getLogin()}"></option>
+                        th:text="${profile.getUsername()}"></option>
             </select>
             <button type="submit" formmethod="post">Создать</button>
         </form>
@@ -160,7 +160,7 @@
             <label for="updateProfile">Логин</label>
             <select class="form-control" id="updateProfile" name="profile.id" required>
                 <option th:each="profile : ${profiles}" th:value="${profile.getId()}"
-                        th:text="${profile.getLogin()}"></option>
+                        th:text="${profile.getUsername()}"></option>
             </select>
             <button type="submit" formmethod="post">Обновить</button>
         </form>
@@ -215,82 +215,82 @@
 
 <script>
     function selectElement(id, data) {
-        let select = document.getElementById(id);
-        for (let i = 0; i < select.options.length; i++) {
-            if (select.options[i].text === data) {
-                select.value = select.options[i].value;
-                break; // Найдено, прерываем цикл
-            }
+    let select = document.getElementById(id);
+    for (let i = 0; i < select.options.length; i++) {
+        if (select.options[i].text === data) {
+            select.value = select.options[i].value;
+            break; // Найдено, прерываем цикл
         }
     }
+}
 
-    // Выбор всех строк
-    document.querySelector('#selectAll').addEventListener('change', function() {
-        document.querySelectorAll('.selectRow').forEach(checkbox => checkbox.checked = this.checked);
-    });
+// Выбор всех строк
+document.querySelector('#selectAll').addEventListener('change', function() {
+    document.querySelectorAll('.selectRow').forEach(checkbox => checkbox.checked = this.checked);
+});
 
-    // Клик по строке таблицы
-    document.querySelectorAll('tbody tr').forEach(row => {
-        row.addEventListener('click', function(event) {
-            console.log(this)
-            console.log(this.getAttribute('data-order-list'));
-            // Проверка, чтобы избежать перенаправления при нажатии на чекбокс
-            if (event.target.classList.contains('selectRow')) {
-                return;
-            }
-            const userId = this.getAttribute('data-id');
-            console.log(userId)
-            if (this.getAttribute('data-order-list') == 'false') {
-                const url = `/users/all/${userId}`;
-
-                // Перенаправление на страницу пользователя
-                window.location.href = url;
-
-            } else {
-                // Заполнение полей формы для обновления
-                document.getElementById('updateUserId').value = this.getAttribute('data-id');
-                document.getElementById('updateFirstname').value = this.getAttribute('data-firstname');
-                document.getElementById('updateSurname').value = this.getAttribute('data-surname');
-                document.getElementById('updateLastname').value = this.getAttribute('data-lastname');
-
-                selectElement('updateRole', this.getAttribute('data-role'));
-                selectElement('updateProfile', this.getAttribute('data-profile'));
-                selectElement('user_id', this.getAttribute('data-firstname'));
-            }
-        });
-    });
-
-    // Удаление пользователей
-    document.getElementById('delete').addEventListener('click', function() {
-        const selectedIds = Array.from(document.querySelectorAll('.selectRow:checked'))
-            .map(checkbox => checkbox.closest('tr').getAttribute('data-id'));
-
-        if (selectedIds.length === 0) {
-            alert('Выберите хотя бы одного пользователя для удаления.');
+// Клик по строке таблицы
+document.querySelectorAll('tbody tr').forEach(row => {
+    row.addEventListener('click', function(event) {
+        console.log(this)
+        console.log(this.getAttribute('data-order-list'));
+        // Проверка, чтобы избежать перенаправления при нажатии на чекбокс
+        if (event.target.classList.contains('selectRow')) {
             return;
         }
+        const userId = this.getAttribute('data-id');
+        console.log(userId)
+        if (this.getAttribute('data-order-list') == 'false') {
+            const url = `/users/all/${userId}`;
 
-        fetch('/users/delete', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(selectedIds)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(error => {
-                        throw new Error(error.message || 'Не удалось удалить пользователей');
-                    });
-                }
-                alert('Пользователи успешно удалены!');
-                window.location.reload();
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-                alert(`Ошибка: ${error.message || 'Произошла ошибка при удалении пользователей.'}`);
-            });
+            // Перенаправление на страницу пользователя
+            window.location.href = url;
+
+        } else {
+                   // Заполнение полей формы для обновления
+            document.getElementById('updateUserId').value = this.getAttribute('data-id');
+            document.getElementById('updateFirstname').value = this.getAttribute('data-firstname');
+            document.getElementById('updateSurname').value = this.getAttribute('data-surname');
+            document.getElementById('updateLastname').value = this.getAttribute('data-lastname');
+
+            selectElement('updateRole', this.getAttribute('data-role'));
+            selectElement('updateProfile', this.getAttribute('data-profile'));
+            selectElement('user_id', this.getAttribute('data-firstname'));
+        }
     });
+});
+
+// Удаление пользователей
+document.getElementById('delete').addEventListener('click', function() {
+    const selectedIds = Array.from(document.querySelectorAll('.selectRow:checked'))
+        .map(checkbox => checkbox.closest('tr').getAttribute('data-id'));
+
+    if (selectedIds.length === 0) {
+        alert('Выберите хотя бы одного пользователя для удаления.');
+        return;
+    }
+
+    fetch('/users/delete', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(selectedIds)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(error => {
+                throw new Error(error.message || 'Не удалось удалить пользователей');
+            });
+        }
+        alert('Пользователи успешно удалены!');
+        window.location.reload();
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert(`Ошибка: ${error.message || 'Произошла ошибка при удалении пользователей.'}`);
+    });
+});
 
 </script>
 

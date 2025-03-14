@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <style>
+        body {
+            background-color: #121212;
+            font-family: 'Arial', sans-serif;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .auth-container {
+            background-color: #1e1e1e;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .auth-container h2 {
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .auth-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            background-color: #2b2b2b;
+            color: #e0e0e0;
+        }
+
+        .auth-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #3b3b3b;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .auth-container button:hover {
+            background-color: #5c5c5c;
+        }
+
+        .auth-container .error-message {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .auth-container .login {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #8c8c8c;
+        }
+
+        .auth-container .login a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .auth-container .login a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="auth-container">
+    <h2>Регистрация</h2>
+    <form method="POST" th:action="@{/reg}" th:object="${profile}">
+        <input type="text" th:field="*{username}" placeholder="Имя пользователя" required>
+
+
+        <input type="password" th:field="*{password}" placeholder="Пароль" required>
+
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+
+    <div class="error-message" th:if="${message}">
+        <p th:text="${message}"></p>
+    </div>
+
+    <div class="login">
+        Уже есть аккаунт? <a th:href="@{/login}">Войти</a>
+    </div>
+</div>
+</body>
+</html>

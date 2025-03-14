@@ -92,11 +92,11 @@
             </thead>
             <tbody>
             <th:block th:each="Profile: ${profilesList}">
-                <tr th:data-id="${Profile.getId()}" th:data-login="${Profile.getLogin()}"
+                <tr th:data-id="${Profile.getId()}" th:data-login="${Profile.getUsername()}"
                     th:data-password="${Profile.getPassword()}">
                     <td><input type="checkbox" class="selectRow"/></td>
                     <td th:text="${Profile.getId()}"></td>
-                    <td th:text="${Profile.getLogin()}"></td>
+                    <td th:text="${Profile.getUsername()}"></td>
                     <td th:text="${Profile.getPassword()}"></td>
                 </tr>
             </th:block>
@@ -117,7 +117,7 @@
             <h2>Создание пользователя</h2>
         </header>
         <form class="createUser form-inline" method="POST" action="/profiles/add" id="userForm" th:object="${profile}">
-            <input placeholder="Логин" id="login" th:field="*{login}" required>
+            <input placeholder="Логин" id="login" th:field="*{username}" required>
             <input placeholder="Пароль" id="password" th:field="*{password}" required>
             <button type="submit" formmethod="post">Создать</button>
         </form>
@@ -130,7 +130,7 @@
         <form class="updateUser form-inline" method="POST" action="/profiles/update" id="updateUserForm"
               th:object="${profile}">
             <input type="hidden" name="id" id="updateUserId" th:field="*{id}"/>
-            <input placeholder="Логин" th:field="*{login}" required id="updateLogin">
+            <input placeholder="Логин" th:field="*{username}" required id="updateLogin" style="pointer-events: none">
             <input placeholder="Пароль" th:field="*{password}" required id="updatePassword">
             <button type="submit" formmethod="post">Обновить</button>
         </form>

@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-@Repository
 public interface StudentRepository extends JpaRepository<Student, UUID> {
 }
 

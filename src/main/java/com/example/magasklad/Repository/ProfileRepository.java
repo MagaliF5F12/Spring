@@ -7,7 +7,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
-@Repository
 public interface ProfileRepository extends JpaRepository<Profile, UUID> {
+    Profile findByUsername(String login);
+
+    boolean existsByUsername(String login);
+
 }
 

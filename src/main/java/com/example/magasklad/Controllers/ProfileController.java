@@ -2,16 +2,19 @@ package com.example.magasklad.Controllers;
 
 
 import com.example.magasklad.Models.Profile;
+import com.example.magasklad.Models.RoleEnum;
 import com.example.magasklad.Models.Roles;
 import com.example.magasklad.Service.ProfileService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +23,8 @@ import java.util.UUID;
 public class ProfileController {
     @Autowired
     public ProfileService profileService;
+    @Autowired
+    public PasswordEncoder passwordEncoder;
 
 
     @GetMapping("/all")
@@ -51,6 +56,14 @@ public class ProfileController {
 
     @PostMapping("/update")
     public String updateUser(@Valid @ModelAttribute("profile") Profile profile, BindingResult result) {
+        profile.setPassword(passwordEncoder.encode(profile.getPassword()));
+        profile.setActive(true);
+        profile.setRoles(switch (profile.getUsername()) {
+            case "admin" -> Collections.singleton(RoleEnum.ADMIN);
+            case "sysadmin" -> Collections.singleton(RoleEnum.SYSADMIN);
+            case "manager" -> Collections.singleton(RoleEnum.MANAGERROLES);
+            default -> Collections.singleton(RoleEnum.USER);
+        });
         profileService.edit(profile.getId(), profile);
         return "redirect:/profiles/all";
 
