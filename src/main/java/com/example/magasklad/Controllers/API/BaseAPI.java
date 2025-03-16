@@ -8,11 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public abstract class BaseAPI<T, ID> {
-
-
-    @Autowired
     private final BaseService<T, ID> baseService;
-
+    @Autowired
     protected BaseAPI(BaseService<T, ID> baseService) {
         this.baseService = baseService;
     }
@@ -29,18 +26,18 @@ public abstract class BaseAPI<T, ID> {
         return baseService.findById(id);
     }
 
-    @PostMapping("/all")
+    @PostMapping("/add")
     public T add(@RequestBody T entity) {
         return baseService.add(entity);
     }
 
-    @PutMapping("/all/{id}")
+    @PutMapping("/update/{id}")
     public T edit(@PathVariable ID id, @RequestBody T entity) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         entity.getClass().getMethod("setId", id.getClass()).invoke(entity, id);
         return baseService.edit(id, entity);
     }
 
-    @DeleteMapping("all/{id}")
+    @DeleteMapping("/delete/{id}")
     public void delete(@PathVariable ID id) {
         baseService.delete(id);
     }

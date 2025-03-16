@@ -1,5 +1,7 @@
 package com.example.magasklad.Models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
@@ -17,6 +19,7 @@ public class Orders {
     @Min(value = 500, message = "Цена должна начинаться от 500 рубликов")
     Integer price;
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @ManyToMany
     @JoinTable(name = "user_order",joinColumns = @JoinColumn(name = "orders_id"), inverseJoinColumns = @JoinColumn(name = "users_id"))
     List<Users> users;

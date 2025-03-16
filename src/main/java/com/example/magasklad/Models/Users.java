@@ -1,5 +1,7 @@
 package com.example.magasklad.Models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -20,14 +22,17 @@ public class Users {
     String surName;
     @Nullable
     String lastName;
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @NotNull
     @ManyToOne
     @JoinColumn(name = "role_id")
     Roles roles;
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @NotNull
     @OneToOne
     @JoinColumn(name = "profile_id")
     Profile profile;
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @ManyToMany
     @JoinTable(name = "user_order",joinColumns = @JoinColumn(name = "users_id"), inverseJoinColumns = @JoinColumn(name = "orders_id"))
     List<Orders> orders;

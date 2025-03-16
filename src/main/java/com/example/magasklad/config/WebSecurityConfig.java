@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,7 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
@@ -77,7 +79,9 @@ public class WebSecurityConfig {
                     true,
                     true,
                     true,
-                    user.getRoles()
+                    user.getRoles().stream()
+                            .map(role -> new SimpleGrantedAuthority(role.name()))
+                            .collect(Collectors.toList())
             );
         }).passwordEncoder(passwordEncoder);
     }
@@ -87,16 +91,16 @@ public class WebSecurityConfig {
         http
                 .authorizeRequests(authorize -> authorize
                         .requestMatchers("/login", "/reg", "/api/**", "/students/**").permitAll()
-                        .requestMatchers("/users/**").hasAuthority("ADMIN")
-                        .requestMatchers("/profiles/**").hasAuthority("SYSADMIN")
-                        .requestMatchers("/roles/**").hasAuthority("MANAGERROLES")
-                        .requestMatchers("/orders/**").hasAuthority("USER")
+                        .requestMatchers("/users/*").hasAuthority("ADMIN")
+                        .requestMatchers("/profiles/*").hasAuthority("SYSADMIN")
+                        .requestMatchers("/roles/*").hasAuthority("MANAGERROLES")
+                        .requestMatchers("/orders/*").hasAuthority("USER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form ->
                         form
                                 .loginPage("/login")
-                                .successHandler(authenticationSuccessHandler()) // Кастомный обработчик
+                                .successHandler(authenticationSuccessHandler())
                                 .permitAll()
                 )
                 .logout(logout ->
@@ -119,11 +123,6 @@ public class WebSecurityConfig {
                 );
 
         return http.build();
-    }
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring().requestMatchers("/h2-console/**");
     }
     @Bean
     public HttpSessionEventPublisher httpSessionEventPublisher() {
