@@ -1,10 +1,11 @@
 package com.example.magasklad.Repository;
 
-import com.example.magasklad.Models.Roles;
+import com.example.magasklad.Models.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
-public interface RolesRepository extends JpaRepository<Roles, UUID> {
+@Repository
+public interface ProductRepository extends JpaRepository<Product, UUID> {
 }

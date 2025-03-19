@@ -64,15 +64,53 @@
         .form-inline input {
             width: 150px;
         }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding: 20px 0;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .pagination-button {
+            padding: 10px 20px;
+            background-color: #2b2b2b;
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            display: inline-block;
+        }
+
+        .pagination-button:hover {
+            background-color: #555;
+            color: #ffffff;
+        }
+
+        .pagination-button.prev::before {
+            content: '← ';
+        }
+
+        .pagination-button.next::after {
+            content: ' →';
+        }
+
+        .pagination-info {
+            color: #e0e0e0;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 <header>
-    <a href="/users/all">Назад</a>
-    <form method="GET" id="search">
-        <input placeholder="Поиск по имени" name="firstname"/>
-        <button>Поиск</button>
-    </form>
+    <a href="/logout">выйти</a>
+    <a href="/profiles/all">Список учетных записей</a>
 </header>
 <div class="body">
     <div class="content">
@@ -86,212 +124,142 @@
             <tr>
                 <th></th>
                 <th>ID</th>
-                <th>Имя</th>
-                <th>Фамилия</th>
-                <th>Отчество</th>
-                <th>Роль</th>
-                <th>Используемый логин</th>
+                <th>ФИО</th>
+                <th>Профиль</th>
             </tr>
             </thead>
             <tbody>
-            <th:block th:each="user: ${pagination_users}">
-                <tr th:data-id="${user.id}" th:data-firstname="${user.getFirstName()}"
-                    th:data-surname="${user.getSurName()}" th:data-lastname="${user.getLastName()}"
-                    th:data-role="${user.getRoles().getTitle()}" th:data-profile="${user.getProfile().getUsername()}"
-                    th:data-order-list="${doing}">
-                    <td><input type="checkbox" class="selectRow"/></td>
-                    <td th:text="${user.getId()}"></td>
-                    <td th:text="${user.getFirstName()}"></td>
-                    <td th:text="${user.getSurName()}"></td>
-                    <td th:text="${user.getLastName()}"></td>
-                    <td th:text="${user.getRoles().getTitle()}"></td>
-                    <td th:text="${user.getProfile().getUsername()}"></td>
-                </tr>
+                <th:block th:each="user: ${users.getCurrentItems()}">
+                    <tr th:data-id="${user.id}"
+                        th:data-FIO="${user.getFIO()}"
+                        th:data-profile="${user.getProfile().getUsername()}">
+                        <td><input type="checkbox" class="selectRow"/></td>
+                        <td th:text="${user.getId()}"></td>
+                        <td th:text="${user.getFIO()}"></td>
+                        <td th:text="${user.getProfile().getUsername()}"></td>
+                    </tr>
+                </th:block>
+            </tbody>
+        </table>
+        <div class="pagination">
+            <th:block th:if="${users.getCurrentPage() > 1}">
+                <a th:href="@{/users/all?(page=${users.getCurrentPage() - 1})}" class="pagination-button prev">
+                    Предыдущая
+                </a>
             </th:block>
-            </tbody>
-        </table>
-        <!--        <div class="pagination">-->
-        <!--            <th:block th:if="${pagination_users.getCurrentPage() > 1}">-->
-        <!--                <a th:href="@{/users?(page=${pagination_users.getCurrentPage() - 1})}"><</a>-->
-        <!--            </th:block>-->
-        <!--            <p th:text="|${pagination_users.getCurrentPage()}|"></p>-->
-        <!--            <th:block th:if="${pagination_users.getCurrentPage() < pagination_users.getTotalNumberPages()}">-->
-        <!--                <a th:href="@{/users?(page=${pagination_users.getCurrentPage() + 1})}">></a>-->
-        <!--            </th:block>-->
-        <!--        </div>-->
+            <p class="pagination-info">
+                Страница <span th:text="${users.getCurrentPage()}"></span> из <span th:text="${users.getTotalNumberPages()}"></span>
+            </p>
+            <th:block th:if="${users.getCurrentPage() < users.getTotalNumberPages()}">
+                <a th:href="@{/users/all?(page=${users.getCurrentPage() + 1})}" class="pagination-button next">
+                    Следующая
+                </a>
+            </th:block>
+        </div>
     </div>
-    <div class="content">
-        <header>
-            <h2>Создание пользователя</h2>
-        </header>
-        <form class="createUser form-inline" method="POST" action="/users/add" id="userForm" th:object="${user}">
-            <input placeholder="Имя" id="firstname" th:field="*{firstName}" required>
-            <input placeholder="Фамилия" id="surname" th:field="*{surName}" required>
-            <input placeholder="Отчество" required th:field="*{lastName}">
-            <label for="category">Роль</label>
-            <select class="form-control" id="category" name="roles.id" required>
-                <option th:each="role : ${roles}" th:value="${role.getId()}"
-                        th:text="${role.getTitle()}"></option>
-            </select>
-            <label for="profile">Логин</label>
-            <select class="form-control" id="profile" name="profile.id" required>
-                <option th:each="profile : ${profiles}" th:value="${profile.getId()}"
-                        th:text="${profile.getUsername()}"></option>
-            </select>
-            <button type="submit" formmethod="post">Создать</button>
-        </form>
-    </div>
+<div class="content">
+    <header>
+        <h2>Создание пользователя</h2>
+    </header>
+    <form class="createUser form-inline" method="POST" action="/users/add" id="userForm" th:object="${user}">
+        <input placeholder="ФИО" id="FIO" th:field="*{FIO}" required>
+        <label for="profile">Профиль</label>
+        <select class="form-control" id="profile" name="profile.id" required>
+            <option th:each="profile : ${profiles}" th:value="${profile.getId()}"
+                    th:text="${profile.getUsername()}"></option>
+        </select>
+        <button type="submit" formmethod="post">Создать</button>
+    </form>
+</div>
 
-    <div class="content">
-        <header>
-            <h2>Обновление пользователя</h2>
-        </header>
-        <form class="updateUser form-inline" method="POST" action="/users/update" id="updateUserForm"
-              th:object="${user}">
-            <input type="hidden" name="id" id="updateUserId" th:field="*{id}">
-            <input placeholder="Имя" id="updateFirstname" th:field="*{firstName}" required>
-            <input placeholder="Фамилия" id="updateSurname" th:field="*{surName}" required>
-            <input placeholder="Отчество" required th:field="*{lastName}" id="updateLastname">
-            <label for="updateRole">Роль</label>
-            <select class="form-control" id="updateRole" name="roles.id" required>
-                <option th:each="role : ${roles}" th:value="${role.getId()}"
-                        th:text="${role.getTitle()}"></option>
-            </select>
-            <label for="updateProfile">Логин</label>
-            <select class="form-control" id="updateProfile" name="profile.id" required>
-                <option th:each="profile : ${profiles}" th:value="${profile.getId()}"
-                        th:text="${profile.getUsername()}"></option>
-            </select>
-            <button type="submit" formmethod="post">Обновить</button>
-        </form>
+<div class="content">
+    <header>
+        <h2>Обновление пользователя</h2>
+    </header>
+    <form class="updateUser form-inline" method="POST" action="/users/update" id="updateUserForm"
+          th:object="${user}">
+        <input type="hidden" name="id" id="updateUserId" th:field="*{id}">
+        <input placeholder="ФИО" id="updateFirstname" th:field="*{FIO}" required>
+        <label for="updateProfile">Используемый логин</label>
+        <select class="form-control" id="updateProfile" name="profile.id" required>
+            <option th:each="profile : ${profiles}" th:value="${profile.getId()}"
+                    th:text="${profile.getUsername()}"></option>
+        </select>
+        <button type="submit" formmethod="post">Обновить</button>
+    </form>
 
-    </div>
-    <div class="content" th:if="${user_orders_list != null}">
-        <header>
-            <h2 th:text="@{'Список заказа пользователя ' + ${user_name}}"></h2>
-            <input type="checkbox" id="selectAllOrders"/> Выбрать всех
-            <button id="deleteOrder">Удалить</button>
-        </header>
-        <table>
-            <thead>
-            <tr>
-                <th></th>
-                <th>ID</th>
-                <th>Название заказа</th>
-                <th>Цена заказа</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="order : ${user_orders_list}" th:data-id="${order.getId()}"
-                th:data-title="${order.getTitle()}"
-                th:data-price="${order.getPrice()}">
-                <td><input type="checkbox" class="selectRow"/></td>
-                <td th:text="${order.getId()}"></td>
-                <td th:text="${order.getTitle()}"></td>
-                <td th:text="${order.getPrice()}"></td>
-            </tr>
-            </tbody>
-        </table>
-        <header>
-            <h2>Добавление заказа пользователю</h2>
-        </header>
-        <form class="createUser form-inline" method="POST" id="orderForm"
-              th:action="@{'/users/all/' + ${user_id} + '/add_order'}">
-            <label for="category">Заказ</label>
-            <select class="form-control" id="order_id" name="order_id" required>
-                <option th:each="order : ${ordersList}" th:value="${order.getId()}"
-                        th:text="${order.getTitle()}"></option>
-            </select>
-            <label for="profile">Роль</label>
-            <select class="form-control" id="user_id" name="user_id" required style="pointer-events: none">
-                <option th:each="users : ${pagination_users}" th:value="${users.getId()}"
-                        th:text="${users.getFirstName()}"></option>
-            </select>
-            <button type="submit" formmethod="post">Создать</button>
-        </form>
-    </div>
-
+</div>
 </div>
 
 <script>
     function selectElement(id, data) {
-    let select = document.getElementById(id);
-    for (let i = 0; i < select.options.length; i++) {
-        if (select.options[i].text === data) {
-            select.value = select.options[i].value;
-            break; // Найдено, прерываем цикл
-        }
+        const select = document.getElementById(id);
+        if (!select) return; // Проверка на существование элемента
+        Array.from(select.options).forEach(option => {
+            if (option.text === data) {
+                select.value = option.value;
+            }
+        });
     }
-}
 
-// Выбор всех строк
-document.querySelector('#selectAll').addEventListener('change', function() {
-    document.querySelectorAll('.selectRow').forEach(checkbox => checkbox.checked = this.checked);
-});
+    document.querySelector('#selectAll').addEventListener('change', function () {
+        document.querySelectorAll('.selectRow').forEach(checkbox => checkbox.checked = this.checked);
+    });
 
-// Клик по строке таблицы
-document.querySelectorAll('tbody tr').forEach(row => {
-    row.addEventListener('click', function(event) {
-        console.log(this)
-        console.log(this.getAttribute('data-order-list'));
-        // Проверка, чтобы избежать перенаправления при нажатии на чекбокс
-        if (event.target.classList.contains('selectRow')) {
+    // Клик по строке таблицы
+    document.querySelectorAll('tbody tr').forEach(row => {
+        row.addEventListener('click', function () {
+            document.getElementById('updateUserId').value = this.getAttribute('data-id');
+            document.getElementById('updateFirstname').value = this.getAttribute('data-FIO');
+            selectElement('updateProfile', this.getAttribute('data-profile'));
+        });
+    });
+    function formatDateForInput(dateStr) {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return ''; // Проверка на корректность даты
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Месяц с нулём
+        const day = String(date.getDate()).padStart(2, '0'); // День с нулём
+        return `${year}-${month}-${day}`;
+    }
+
+    // Удаление пользователей
+    document.getElementById('delete').addEventListener('click', function () {
+        const selectedIds = Array.from(document.querySelectorAll('.selectRow:checked'))
+            .map(checkbox => checkbox.closest('tr').getAttribute('data-id'));
+
+        if (selectedIds.length === 0) {
+            alert('Выберите хотя бы одного пользователя для удаления.');
             return;
         }
-        const userId = this.getAttribute('data-id');
-        console.log(userId)
-        if (this.getAttribute('data-order-list') == 'false') {
-            const url = `/users/all/${userId}`;
 
-            // Перенаправление на страницу пользователя
-            window.location.href = url;
-
-        } else {
-                   // Заполнение полей формы для обновления
-            document.getElementById('updateUserId').value = this.getAttribute('data-id');
-            document.getElementById('updateFirstname').value = this.getAttribute('data-firstname');
-            document.getElementById('updateSurname').value = this.getAttribute('data-surname');
-            document.getElementById('updateLastname').value = this.getAttribute('data-lastname');
-
-            selectElement('updateRole', this.getAttribute('data-role'));
-            selectElement('updateProfile', this.getAttribute('data-profile'));
-            selectElement('user_id', this.getAttribute('data-firstname'));
+        // Отправка POST-запроса
+        if (!window.fetch) {
+            alert('Ваш браузер не поддерживает Fetch API.');
+            return;
         }
-    });
-});
 
-// Удаление пользователей
-document.getElementById('delete').addEventListener('click', function() {
-    const selectedIds = Array.from(document.querySelectorAll('.selectRow:checked'))
-        .map(checkbox => checkbox.closest('tr').getAttribute('data-id'));
-
-    if (selectedIds.length === 0) {
-        alert('Выберите хотя бы одного пользователя для удаления.');
-        return;
-    }
-
-    fetch('/users/delete', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(selectedIds)
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(error => {
-                throw new Error(error.message || 'Не удалось удалить пользователей');
+        fetch('/users/delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(selectedIds)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => {
+                        throw new Error(error.message || 'Не удалось удалить пользователей');
+                    });
+                }
+                alert('Пользователи успешно удалены!');
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert(`Ошибка: ${error.message || 'Произошла ошибка при удалении пользователей.'}`);
             });
-        }
-        alert('Пользователи успешно удалены!');
-        window.location.reload();
-    })
-    .catch(error => {
-        console.error('Ошибка:', error);
-        alert(`Ошибка: ${error.message || 'Произошла ошибка при удалении пользователей.'}`);
     });
-});
-
 </script>
 
 </body>

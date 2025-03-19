@@ -1,6 +1,4 @@
 spring:
-  config:
-    name: school
   datasource:
     url: jdbc:postgresql://localhost:5432/magasklad
     username: postgres
@@ -9,16 +7,17 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
     properties:
       hibernate:
-        format_sql:
+        format_sql: true
+
 server:
   port: 5252
   servlet:
     session:
-      timeout=15s:
+      timeout: 2m
+
 some:
   value: false

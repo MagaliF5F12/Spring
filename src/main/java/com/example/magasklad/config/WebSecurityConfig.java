@@ -30,6 +30,13 @@ public class WebSecurityConfig {
     private final ProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    EmployeeRepository employeeRepository;
+
+
     public WebSecurityConfig(ProfileRepository profileRepository, PasswordEncoder passwordEncoder) {
         this.profileRepository = profileRepository;
         this.passwordEncoder = passwordEncoder;
@@ -45,20 +52,20 @@ public class WebSecurityConfig {
             user.setRoles(Collections.singleton(RoleEnum.ADMIN));
             profileRepository.save(user);
         }
-        if (!profileRepository.existsByUsername("sysadmin")) {
-            Profile user = new Profile();
-            user.setUsername("sysadmin");
-            user.setPassword(passwordEncoder.encode("sysadmin"));
-            user.setActive(true);
-            user.setRoles(Collections.singleton(RoleEnum.SYSADMIN));
-            profileRepository.save(user);
-        }
         if (!profileRepository.existsByUsername("manager")) {
             Profile user = new Profile();
             user.setUsername("manager");
             user.setPassword(passwordEncoder.encode("manager"));
             user.setActive(true);
-            user.setRoles(Collections.singleton(RoleEnum.MANAGERROLES));
+            user.setRoles(Collections.singleton(RoleEnum.MANAGER));
+            profileRepository.save(user);
+        }
+        if (!profileRepository.existsByUsername("user")) {
+            Profile user = new Profile();
+            user.setUsername("user");
+            user.setPassword(passwordEncoder.encode("user"));
+            user.setActive(true);
+            user.setRoles(Collections.singleton(RoleEnum.USER));
             profileRepository.save(user);
         }
     }
@@ -86,11 +93,9 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests(authorize -> authorize
-                        .requestMatchers("/login", "/reg", "/api/**", "/students/**").permitAll()
-                        .requestMatchers("/users/**").hasAuthority("ADMIN")
-                        .requestMatchers("/profiles/**").hasAuthority("SYSADMIN")
-                        .requestMatchers("/roles/**").hasAuthority("MANAGERROLES")
-                        .requestMatchers("/orders/**").hasAuthority("USER")
+                        .requestMatchers("/login", "/reg", "/api/**").permitAll()
+                        .requestMatchers("/users/**", "/profiles/all").hasAuthority("ADMIN")
+                        .requestMatchers("/products/**", "/defects/**", "/category/**", "/factory/**", "/employee/**").hasAuthority("MANAGER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form ->
@@ -137,19 +142,14 @@ public class WebSecurityConfig {
                     .anyMatch(a -> a.getAuthority().equals("ADMIN"));
             boolean isUser = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("USER"));
-            boolean isSysAdmin = authentication.getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals("SYSADMIN"));
             boolean isManager = authentication.getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals("MANAGERROLES"));
-
-            if (isAdmin)
+                    .anyMatch(a -> a.getAuthority().equals("MANAGER"));
+            if(isAdmin)
                 response.sendRedirect("/users/all");
-            else if (isUser)
-                response.sendRedirect("/orders/all");
-            else if (isSysAdmin)
-                response.sendRedirect("/profiles/all");
-            else if (isManager)
-                response.sendRedirect("/roles/all");
+            else if(isManager)
+                response.sendRedirect("/defects/all");
+            else if(isUser)
+                response.sendRedirect("/fproducts/all");
         };
     }
 }

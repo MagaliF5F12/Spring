@@ -1,6 +1,7 @@
 package com.example.magasklad.Service;
 
-import com.example.magasklad.Models.Roles;
+import com.example.magasklad.Models.Defects;
+import com.example.magasklad.Models.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -8,10 +9,9 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class RolesService extends BaseService<Roles, UUID> {
+public class DefectsService extends BaseService<Defects, UUID> {
     @Autowired
-    public RolesService(JpaRepository<Roles, UUID> repository) {
+    public DefectsService(JpaRepository<Defects, UUID> repository) {
         super(repository);
     }
-
 }

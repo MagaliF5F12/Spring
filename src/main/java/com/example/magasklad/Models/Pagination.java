@@ -3,7 +3,7 @@ package com.example.magasklad.Models;
 import java.util.ArrayList;
 
 public class Pagination<T> {
-    private final int maxItemsOnPage = 2;
+    private final int maxItemsOnPage = 5;
     private int totalNumberPages;
     private int currentPage;
     private int currentNumberItems;

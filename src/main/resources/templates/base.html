@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:c="http://www.w3.org/1999/XSL/Transform">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title_model}"></title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+        }
+        header, .content {
+            margin: 20px;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+        }
+        a, button {
+            color: #ffffff;
+            background-color: #3b3b3b;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        input, select, p {
+            margin: 5px 0;
+            padding: 8px;
+            border: 1px solid #555;
+            background-color: #2b2b2b;
+            color: #e0e0e0;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #555;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #3b3b3b;
+        }
+        tr:hover {
+            background-color: #2e2e2e;
+            cursor: pointer;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .form-inline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-inline input {
+            width: 150px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding: 20px 0;
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .pagination-button {
+            padding: 10px 20px;
+            background-color: #2b2b2b;
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            display: inline-block;
+        }
+
+        .pagination-button:hover {
+            background-color: #555;
+            color: #ffffff;
+        }
+
+        .pagination-button.prev::before {
+            content: '← ';
+        }
+
+        .pagination-button.next::after {
+            content: ' →';
+        }
+
+        .pagination-info {
+            color: #e0e0e0;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        input[type="checkbox"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #2b2b2b;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: #4caf50;
+            border-color: #4caf50;
+        }
+
+        input[type="checkbox"]::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.2s ease-in-out;
+            border-radius: 2px;
+        }
+
+        input[type="checkbox"]:checked::before {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .form-container input,
+        .form-container button,
+        .form-container label {
+            margin: 10px 0;
+        }
+        form div{
+            display: flex;
+            align-content: center;
+            align-items: center;
+        }
+        form div * {
+            margin: 5px;
+        }
+        select[multiple] {
+            width: 100%;
+            height: 150px;
+            border: 2px solid #220a0a;
+            border-radius: 8px;
+            padding: 5px;
+            background-color: transparent;
+            font-size: 16px;
+            color: #fff;
+            outline: none;
+        }
+
+        select[multiple]:focus {
+            border-color: #4b2121;
+            box-shadow: 0 0 5px rgba(45, 23, 223, 0.5);
+        }
+
+        select[multiple] option {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        select[multiple] option:hover {
+            background-color: #000;
+        }
+
+        select[multiple] option:checked {
+            background-color: rgba(79, 49, 143, 0.1);
+            color: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #333;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+        }
+
+        th, td {
+            border: 1px solid #555;
+            padding: 8px 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #222;
+            color: #fff;
+            text-transform: uppercase;
+            text-align: center;
+            font-weight: bold;
+        }
+
+
+        tr:hover, td:hover, th:hover{
+            background-color: #ddd;
+            color: black;
+        }
+
+        td {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <th:block th:each="entry : ${urls}">
+        <a th:href="${entry.value}" th:text="${entry.key}"></a>
+    </th:block>
+</header>
+<div class="body">
+    <div class="content">
+        <header>
+            <h2 th:text="${titleSite}"></h2>
+            <input type="checkbox" id="selectAll"/> Выбрать все поля
+            <button id="delete">Удалить</button>
+        </header>
+        <table>
+            <thead>
+            <tr>
+                <th></th>
+                <th:block th:each="column :${columns}">
+                    <th th:text="${column}"/>
+                </th:block>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="model : ${list.getCurrentItems()}">
+                <tr th:data-id="${model.getId()}"
+                    th:attr="data=${model.toJson()}">
+                    <td><input type="checkbox" class="selectRow"/></td>
+                    <td th:text="${model.getId()}"></td>
+                    <td th:each="entry : ${model.getDataAttributes()}" th:text="${entry}"></td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+        <div class="pagination">
+            <th:block th:if="${list.getCurrentPage() > 1}">
+                <a th:href="@{'/' + ${title_list} + '/all?page=' + ${list.getCurrentPage() - 1}}" class="pagination-button prev">
+                    Предыдущая
+                </a>
+            </th:block>
+            <p class="pagination-info">
+                Страница <span th:text="${list.getCurrentPage()}"></span> из <span th:text="${list.getTotalNumberPages()}"></span>
+            </p>
+            <th:block th:if="${list.getCurrentPage() < list.getTotalNumberPages()}">
+                <a th:href="@{'/' + ${title_list}+ '/all?page=' + ${list.getCurrentPage() + 1}}" th:with="title=${title_list}" class="pagination-button next">
+                    Следующая
+                </a>
+            </th:block>
+        </div>
+    </div>
+    <div class="content">
+        <header>
+            <h2 th:text="'Создание ' + ${title_model}"></h2>
+        </header>
+        <form class="createUser form-inline" method="POST" th:action="@{'/' + ${title_list} + '/add'}" id="userForm" th:object="${newobject}">
+            <div th:each="entry, iterStat : ${newobject.getNewObject()}">
+                <label th:text="${newobject.getColumns()[iterStat.index+1]}"></label>
+
+                <input th:if="${entry.value.type == 'text'}"
+                       th:type="${entry.value.type}"
+                       th:name="${entry.key}"
+                       th:value="${entry.value.value}" />
+
+                <input th:if="${entry.value.type == 'password'}"
+                       th:type="${entry.value.type}"
+                       th:name="${entry.key}"
+                       th:value="${entry.value.value}" />
+
+                <input th:if="${entry.value.type == 'date'}"
+                       th:type="${entry.value.type}"
+                       th:id="'Update' + ${entry.key}"
+                       th:name="${entry.key}"
+                       th:value="${entry.value.value}" />
+
+                <input th:if="${entry.value.type == 'boolean'}"
+                       th:id="'Update' + ${entry.key}"
+                       type="checkbox"
+                       th:name="${entry.key}"
+                       th:value="${entry.value.value}" />
+
+                <select th:if="${entry.value.type == 'select'}" th:name="${entry.key}" th:id="${entry.key}">
+                    <option th:each="role : ${entry.value.value}"
+                            th:value="${role}"
+                            th:text="${role}">
+                    </option>
+                </select>
+
+                <select th:if="${entry.value.type == 'select-multiple'}" th:name="${entry.key}" th:id="${entry.key}" multiple>
+                    <option th:each="role : ${entry.value.value}"
+                            th:value="${role}"
+                            th:text="${role}">
+                    </option>
+                </select>
+
+                <select th:if="${entry.value.type == 'select-list'}" th:name="${entry.key}" th:id="${entry.key}">
+                    <option th:each="role : ${sublist[entry.key]}"
+                            th:value="${role.id}"
+                            th:text="${role.toString()}">
+                    </option>
+                </select>
+                <select th:if="${entry.value.type == 'select-list-multiple'}" th:name="${entry.key}" th:id="${entry.key}" multiple>
+                    <option th:each="role : ${sublist[entry.key]}"
+                            th:value="${role.id}"
+                            th:text="${role.toString()}">
+                    </option>
+                </select>
+
+                <br/>
+            </div>
+            <button type="submit">Создать</button>
+        </form>
+    </div>
+
+    <div class="content">
+        <header>
+            <h2 th:text="'Обновление ' + ${title_model}"></h2>
+        </header>
+        <form class="updateUser form-inline" method="POST" th:action="@{'/' + ${title_list} + '/update'}" id="updateUserForm"
+              th:object="${newobject}">
+            <input type="hidden" name="id" id="Updateid" th:field="*{id}">
+            <div th:each="entry, iterStat : ${newobject.getNewObject()}">
+                <label th:text="${newobject.getColumns()[iterStat.index+1]}"></label>
+
+                <input th:if="${entry.value.type == 'text'}"
+                       th:type="${entry.value.type}"
+                       th:id="'Update' + ${entry.key}"
+                       th:name="${entry.key}"
+                       th:value="${entry.value.value}" />
+
+                <input th:if="${entry.value.type == 'date'}"
+                       th:type="${entry.value.type}"
+                       th:id="'Update' + ${entry.key}"
+                       th:name="${entry.key}"
+                       th:value="${entry.value.value}" />
+
+                <input th:if="${entry.value.type == 'password'}"
+                       th:id="'Update' + ${entry.key}"
+                       th:type="${entry.value.type}"
+                       th:name="${entry.key}"
+                       th:value="${entry.value.value}" />
+
+                <input th:if="${entry.value.type == 'boolean'}"
+                       th:id="'Update' + ${entry.key}"
+                       type="checkbox"
+                       th:name="${entry.key}"
+                       th:value="${entry.value.value}" />
+
+                <select th:if="${entry.value.type == 'select'}" th:name="${entry.key}"
+                        th:id="'Update' + ${entry.key}">
+                    <option th:each="role : ${entry.value.value}"
+                            th:value="${role}"
+                            th:text="${role}">
+                    </option>
+                </select>
+
+                <select th:if="${entry.value.type == 'select-list'}" th:name="${entry.key}"
+                        th:id="'Update' + ${entry.key}">
+                    <option th:each="role : ${sublist[entry.key]}"
+                            th:value="${role.id}"
+                            th:text="${role.toString()}">
+                    </option>
+                </select>
+                <select th:if="${entry.value.type == 'select-list-multiple'}" th:name="${entry.key}" multiple
+                        th:id="'Update' + ${entry.key}">
+                    <option th:each="role : ${sublist[entry.key]}"
+                            th:value="${role.id}"
+                            th:text="${role.toString()}">
+                    </option>
+                </select>
+
+                <select th:if="${entry.value.type == 'select-multiple'}" th:name="${entry.key}" multiple
+                        th:id="'Update' + ${entry.key}">
+                    <option th:each="role : ${entry.value.value}"
+                            th:value="${role}"
+                            th:text="${role}">
+                    </option>
+                </select>
+
+                <br/>
+            </div>
+            <button type="submit" formmethod="post">Обновить</button>
+        </form>
+
+    </div>
+</div>
+
+<script>
+
+    document.querySelectorAll('tbody tr').forEach(row => {
+        row.addEventListener('click', function () {
+            const jsonString = this.getAttribute('data');
+            const obj = JSON.parse(jsonString);
+            console.log(obj);
+
+            // Перебираем все элементы с id, начинающимся на "Update"
+            const allElements = document.querySelectorAll('[id^="Update"]');
+
+            allElements.forEach(element => {
+                const key = element.id.replace('Update', '').toLowerCase();
+
+                // Если объект содержит нужный ключ, обновляем элемент
+                if (obj.hasOwnProperty(key)) {
+                    console.log(obj[key]);
+
+                    if (element.tagName.toLowerCase() === 'select') {
+                        if (element.hasAttribute('multiple')) {
+                            // Если это select с атрибутом multiple
+                            const selectedValues = obj[key]; // Это массив значений, которые должны быть выбраны
+                            const options = element.querySelectorAll('option');
+
+                            options.forEach(option => {
+                                // Проверяем, если option.value есть в selectedValues, то выбираем его
+                                option.selected = selectedValues.includes(option.value);
+                            });
+                        } else {
+                            if (Array.isArray(obj[key])) {
+                                element.value = obj[key].join(','); // для массива можно использовать join для объединения
+                            } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                                console.log(element);
+                                selectElement(element, obj[key]['str']); // для объекта или другого типа данных
+                            } else {
+                                element.value = obj[key].toString();
+                            }
+                        }
+                    } else if (element.tagName.toLowerCase() === 'input') {
+                        if (element.type === 'checkbox') {
+                            // Если это checkbox, устанавливаем checked
+                            element.checked = Boolean(obj[key]);
+                        } else {
+                            // Если это обычный input, обновляем значение
+                            element.value = obj[key].toString();
+                        }
+                    }
+                }
+            });
+        });
+    });
+
+    function selectElement(select, data) {
+        Array.from(select.options).forEach(option => {
+            if (option.text === data) {
+                select.value = option.value;
+            }
+        });
+    }
+
+    document.querySelector('#selectAll').addEventListener('change', function () {
+        document.querySelectorAll('.selectRow').forEach(checkbox => checkbox.checked = this.checked);
+    });
+
+    // Удаление пользователей
+    document.getElementById('delete').addEventListener('click', function () {
+        const selectedIds = Array.from(document.querySelectorAll('.selectRow:checked'))
+            .map(checkbox => checkbox.closest('tr').getAttribute('data-id'));
+
+        if (selectedIds.length === 0) {
+            alert('Выберите хотя бы одного пользователя для удаления.');
+            return;
+        }
+
+        // Отправка POST-запроса
+        if (!window.fetch) {
+            alert('Ваш браузер не поддерживает Fetch API.');
+            return;
+        }
+
+        fetch('/' +
+            '[[${title_list}]]' +
+            '/delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(selectedIds)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(error => {
+                        throw new Error(error.message || 'Не удалось удалить пользователей');
+                    });
+                }
+                alert('Пользователи успешно удалены!');
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert(`Ошибка: ${error.message || 'Произошла ошибка при удалении пользователей.'}`);
+            });
+    });
+</script>
+
+</body>
+</html>

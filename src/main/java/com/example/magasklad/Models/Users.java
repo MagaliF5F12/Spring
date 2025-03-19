@@ -1,47 +1,48 @@
 package com.example.magasklad.Models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 
 
 @Entity
 @Table(name = "users")
-public class Users {
+public class Users implements BaseModel{
     @Id
     @GeneratedValue
     UUID id;
-    @NotNull
-    String firstName;
-    @NotNull
-    String surName;
-    @Nullable
-    String lastName;
-    @NotNull
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    Roles roles;
-    @NotNull
+
+    @NotBlank(message = "Имя пользователя не должно быть пустым")
+    String FIO;
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @OneToOne
-    @JoinColumn(name = "profile_id")
     Profile profile;
-    @ManyToMany
-    @JoinTable(name = "user_order",joinColumns = @JoinColumn(name = "users_id"), inverseJoinColumns = @JoinColumn(name = "orders_id"))
-    List<Orders> orders;
 
-    public Users(){}
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @OneToMany(mappedBy = "users")
+    List<Defects> defects;
 
-    public Users(UUID id, String firstName, String surName, @Nullable String lastName, Roles roles, Profile profile, List<Orders> orders) {
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @OneToMany(mappedBy = "users")
+    List<FactoryProduct> factoryProducts;
+
+    public Users() {
+    }
+
+    public Users(UUID id, String FIO, Profile profile, List<Defects> defects, List<FactoryProduct> factoryProducts) {
         this.id = id;
-        this.firstName = firstName;
-        this.surName = surName;
-        this.lastName = lastName;
-        this.roles = roles;
+        this.FIO = FIO;
         this.profile = profile;
-        this.orders = orders;
+        this.defects = defects;
+        this.factoryProducts = factoryProducts;
     }
 
     public UUID getId() {
@@ -52,52 +53,64 @@ public class Users {
         this.id = id;
     }
 
-    public @NotNull String getFirstName() {
-        return firstName;
+    public String getFIO() {
+        return FIO;
     }
 
-    public void setFirstName(@NotNull String firstName) {
-        this.firstName = firstName;
+    public void setFIO(String FIO) {
+        this.FIO = FIO;
     }
 
-    public @NotNull String getSurName() {
-        return surName;
-    }
-
-    public void setSurName(@NotNull String surName) {
-        this.surName = surName;
-    }
-
-    @Nullable
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(@Nullable String lastName) {
-        this.lastName = lastName;
-    }
-
-    public @NotNull Roles getRoles() {
-        return roles;
-    }
-
-    public void setRoles(@NotNull Roles roles) {
-        this.roles = roles;
-    }
-
-    public @NotNull Profile getProfile() {
+    public Profile getProfile() {
         return profile;
     }
 
-    public void setProfile(@NotNull Profile profile) {
+    public void setProfile(Profile profile) {
         this.profile = profile;
     }
 
-    public List<Orders> getOrders() {
-        return orders;
+    public List<Defects> getDefects() {
+        return defects;
     }
 
-    public void setOrders(List<Orders> orders) {
-        this.orders = orders;
+    public void setDefects(List<Defects> defects) {
+        this.defects = defects;
+    }
+
+    public List<FactoryProduct> getFactoryProducts() {
+        return factoryProducts;
+    }
+
+    public void setFactoryProducts(List<FactoryProduct> factoryProducts) {
+        this.factoryProducts = factoryProducts;
+    }
+
+    @Override
+    public ArrayList<String> getColumns() {
+        return new ArrayList<>(Arrays.asList("Идентификатор", "ФИО", "Профиль"));
+    }
+
+    @Override
+    public LinkedHashMap<String, Object> getNewObject() {
+        return new LinkedHashMap<>() {
+            {
+                put("FIO", Map.of("type", "text", "value", ""));
+                put("profile", Map.of("type", "select-list", "value", ""));
+            }};
+    }
+
+    @Override
+    public ArrayList<Object> getDataAttributes() {
+        return new ArrayList<>(Arrays.asList(FIO, profile.username));
+    }
+
+    @Override
+    public String getStr() {
+        return FIO;
+    }
+
+    @Override
+    public String toString() {
+        return FIO;
     }
 }
